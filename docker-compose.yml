@@ -1,0 +1,38 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agrigest_app
+    restart: unless-stopped
+    ports:
+      - "8080:80"          # http://localhost:8080 sur ta machine
+    volumes:
+      - .:/var/www/html    # utile en dev : reflete tes modifs de code sans rebuild
+    depends_on:
+      - mysql
+    networks:
+      - agrigest_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: agrigest_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: agrigest
+      MYSQL_USER: agrigest_user
+      MYSQL_PASSWORD: agrigest_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    ports:
+      - "3306:3306"        # optionnel : pratique pour se connecter avec un client MySQL externe
+    volumes:
+      - agrigest_db_data:/var/lib/mysql   # persistance des donnees (US6)
+    networks:
+      - agrigest_network
+
+networks:
+  agrigest_network:
+    driver: bridge
+
+volumes:
+  agrigest_db_data:
